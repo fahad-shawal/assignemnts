@@ -5,19 +5,33 @@ from parsel import Selector
 
 def get_request(url):
 
-    text = requests.get(url)
+    text = requests.get(url).text
+    return text
 
-    return text.text
 
-
+"""
+    Main Method for running the logic
+"""
 def main():
 
-    url = 'http://rogerdudler.github.io/git-guide/'
+    url = 'https://en.wikipedia.org/wiki/Main_Page'
 
     request_data = get_request(url)
+    selector = Selector( text = request_data)
+    print(len(request_data))
+    #all_anchor_links = selector.css('a').xpath('@href').getall()
+    #all_anchor_links = selector.css('a href*= http').xpath('//contains[@href, "https"]').getall()
+    all_anchor_links = selector.css('a[href*= http]::attr(href)').getall()
+    
+    '''
+    for link in all_anchor_links:
+        print(link)
+    '''
+    #print(all_anchor_links[0])
 
-    print(request_data)
-
+"""
+    Calling the main function
+"""
 if __name__ == '__main__':
     
     main()
