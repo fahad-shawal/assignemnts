@@ -1,9 +1,10 @@
 import os
+import time
 import requests
+import threading
+import concurrent.futures
 from parsel import Selector
 from concurrent.futures import ThreadPoolExecutor
-import concurrent.futures
-import threading
 
 
 def get_request(url):
@@ -31,7 +32,8 @@ def concurren_execution(all_anchor_links,co_requests,max_url_visit):
 
     sum = 0
     print("\n--------- Start Process in concurrently ---------\n")
-            
+    
+    start = time.time()
     with ThreadPoolExecutor(max_workers = 
                                 co_requests) as executor:
                 
@@ -40,6 +42,8 @@ def concurren_execution(all_anchor_links,co_requests,max_url_visit):
                 future = executor.submit(get_request,link)
                 print("--Got Data from : ", link, )
                 sum += len(future.result())
+    
+    print("\n Time Taken is : ", round(time.time()-start, 2), "\n")
     
     return sum/max_url_visit
 
@@ -51,15 +55,18 @@ def parallel_execution(all_anchor_links,co_requests,max_url_visit):
 
     sum = 0
     print("\n--------- Start Process in Parallel ---------\n")
-        
+    
+    start = time.time()
     with concurrent.futures.ProcessPoolExecutor(max_workers = 
                                      co_requests) as executor:
         
         for link in all_anchor_links:
         
-            future = executor.submit(get_request,link)
+            future = executor.submit(get_request, link)
             print("--Got Data from : ", link)
             sum += len(future.result())
+    
+    print("\n Time Taken is : ", round(time.time()-start, 2), "\n")
         
     return sum/max_url_visit
 
@@ -102,13 +109,14 @@ def main():
         else:
             
             all_anchor_links = selector.css( 
-                'a[href*= http]::attr(href)').getall()[0:max_url_visit]          
-            
+                'a[href*= http]::attr(href)').getall()[0:max_url_visit]
+
             value = concurren_execution( all_anchor_links, 
                                             co_requests, 
                                             max_url_visit)
-
+            
             print("Average Size of the page :", value)
+            
             
             value = parallel_execution( all_anchor_links, 
                                             co_requests, 
