@@ -80,6 +80,7 @@ class OrsayspiderSpider(scrapy.Spider):
             },
             'url' : self.get_url(response)
         }
+        
 
     def get_care(self, response):
         # css -> div[class*="product-metrial"] > p::text 
@@ -113,9 +114,16 @@ class OrsayspiderSpider(scrapy.Spider):
 
     def get_color (self, response):
         # css -> li[class="attribute"] > div > span:nth-last-child(1)::text
+        color_list = []
+        for item in response.xpath('//ul[contains(@class, "swatches color")]//a/@title').extract():
+            color_list.append(item.split('-')[-1])
+        
+        return color_list
+        '''
         return response.xpath(
                 '//li[contains(@class, "attribute")]/div/span[last()]/text()'
                 ).extract_first()
+        '''
 
     def get_currency (self, response):
         # css -> div[class*="current"] *> span[class*="country-currency"]::text
